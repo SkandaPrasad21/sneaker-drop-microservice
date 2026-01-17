@@ -1,5 +1,5 @@
-# sneaker-inventory-service
-This is a Spring Boot–based microservice responsible for managing sneaker stock during high-demand drop events. It supports real-time stock visibility, safe stock reservation, and release handling with concurrency control. Handles concurrency and sold-out scenarios with proper error responses.
+# sneaker-drop-service
+This is a Spring Boot–based microservice responsible for managing sneaker stock during high-demand drop events. It supports real-time stock visibility, safe stock reservation, and release handling with concurrency control. Handles concurrency and sold-out scenarios with proper error responses.It also 
 
 # Features
 - View total and available sneaker stock
