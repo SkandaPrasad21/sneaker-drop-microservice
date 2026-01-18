@@ -1,7 +1,6 @@
 const INVENTORY_URL = "http://localhost:8082/inventory";
 const ORDER_URL = "http://localhost:8081/orders";
 
-// ✅ productId comes from URL
 const params = new URLSearchParams(window.location.search);
 const productId = Number(params.get("productId"));
 
@@ -70,17 +69,14 @@ function checkout() {
 
       isCheckedOut = true;
 
-      // Enable/disable buttons
       document.getElementById("incBtn").disabled = true;
       document.getElementById("decBtn").disabled = true;
       document.getElementById("checkoutBtn").disabled = true;
       document.getElementById("payBtn").disabled = false;
       document.getElementById("cancelBtn").disabled = false;
 
-      // Hide order ID section
       document.getElementById("orderSection")?.classList.add("hidden");
 
-      // Reset qty to 1 for new order
       document.getElementById("qty").value = 1;
 
       startCountdown();
@@ -105,7 +101,6 @@ function pay() {
 /* ========== CANCEL / BACK ========== */
 function cancel() {
   if (!currentOrder) {
-    // No order, just go back to home
     window.location.href = "home.html";
     return;
   }
@@ -152,10 +147,8 @@ function resetOrder() {
   document.getElementById("cancelBtn").disabled = true;
   fetchInventory();
 
-  // Reset qty
   document.getElementById("qty").value = 1;
 
-  // Reset order section (hidden)
   document.getElementById("orderSection")?.classList.add("hidden");
 
   fetchInventory();

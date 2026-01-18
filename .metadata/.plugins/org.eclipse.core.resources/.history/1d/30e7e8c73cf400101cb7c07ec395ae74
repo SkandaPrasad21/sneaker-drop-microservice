@@ -1,0 +1,167 @@
+const INVENTORY_URL = "http://localhost:8082/inventory";
+const ORDER_URL = "http://localhost:8081/orders";
+
+// ✅ productId comes from URL
+const params = new URLSearchParams(window.location.search);
+const productId = Number(params.get("productId"));
+
+if (!productId) {
+  alert("No product selected");
+  window.location.href = "home.html";
+}
+
+let currentOrder = null;
+let reservationExpiresAt = null;
+let countdownInterval = null;
+let isCheckedOut = false;
+
+/* ========== INIT ========== */
+fetchInventory();
+setInterval(fetchInventory, 3000);
+
+/* ========== INVENTORY ========== */
+function fetchInventory() {
+  fetch(`${INVENTORY_URL}/details?productId=${productId}`)
+    .then(res => res.json())
+    .then(data => {
+      const available = data.availableStock ?? 0;
+      const reserved = data.reservedStock ?? 0;
+
+      document.getElementById("availableStock").innerText = available;
+      document.getElementById("reservedStock").innerText = reserved;
+
+      const qty = getQty();
+      document.getElementById("checkoutBtn").disabled = isCheckedOut || available < qty;
+    })
+    .catch(err => console.error("Inventory error:", err));
+}
+
+/* ========== QTY ========== */
+function getQty() {
+  return parseInt(document.getElementById("qty").value);
+}
+
+function increaseQty() {
+  if (isCheckedOut) return;
+  document.getElementById("qty").value = getQty() + 1;
+  fetchInventory();
+}
+
+function decreaseQty() {
+  if (isCheckedOut) return;
+  const qty = getQty();
+  if (qty > 1) document.getElementById("qty").value = qty - 1;
+  fetchInventory();
+}
+
+/* ========== CHECKOUT ========== */
+function checkout() {
+  const qty = getQty();
+  const userId = "user_" + Math.floor(Math.random() * 100000);
+
+  fetch(`${ORDER_URL}/checkout?userId=${userId}&productId=${productId}&qty=${qty}`, {
+    method: "POST",
+  })
+    .then(res => res.json())
+    .then(order => {
+      currentOrder = order;
+      currentOrder.productId = productId;
+      reservationExpiresAt = new Date(order.expiresAt);
+
+      isCheckedOut = true;
+
+      // Enable/disable buttons
+      document.getElementById("incBtn").disabled = true;
+      document.getElementById("decBtn").disabled = true;
+      document.getElementById("checkoutBtn").disabled = true;
+      document.getElementById("payBtn").disabled = false;
+      document.getElementById("cancelBtn").disabled = false;
+
+      // Hide order ID section
+      document.getElementById("orderSection")?.classList.add("hidden");
+
+      // Reset qty to 1 for new order
+      document.getElementById("qty").value = 1;
+
+      startCountdown();
+      showMessage("✅ Order reserved!");
+      fetchInventory();
+    })
+    .catch(err => showMessage("❌ Checkout failed"));
+}
+
+/* ========== PAY ========== */
+function pay() {
+  if (!currentOrder) return;
+
+  fetch(`${ORDER_URL}/pay?orderId=${currentOrder.id}`, { method: "POST" })
+    .then(() => {
+      showMessage("🎉 Payment successful!");
+      resetOrder();
+    })
+    .catch(err => showMessage("❌ Payment failed"));
+}
+
+/* ========== CANCEL / BACK ========== */
+function cancel() {
+  if (!currentOrder) {
+    // No order, just go back to home
+    window.location.href = "home.html";
+    return;
+  }
+
+  fetch(`${INVENTORY_URL}/release?productId=${currentOrder.productId}&qty=${currentOrder.quantity}`, {
+    method: "POST",
+  })
+    .then(res => {
+      if (!res.ok) throw new Error("Failed to release reservation");
+
+      showMessage("❌ Order cancelled!");
+      resetOrder();
+    })
+    .catch(err => {
+      console.error(err);
+      showMessage("❌ Failed to release reservation");
+    });
+}
+
+/* ========== COUNTDOWN ========== */
+function startCountdown() {
+  clearInterval(countdownInterval);
+
+  countdownInterval = setInterval(() => {
+    const diff = Math.floor((reservationExpiresAt - new Date()) / 1000);
+    if (diff <= 0) return resetOrder();
+
+    document.getElementById("timeLeft").innerText =
+      `${String(Math.floor(diff / 60)).padStart(2, "0")}:${String(diff % 60).padStart(2, "0")}`;
+  }, 1000);
+}
+
+/* ========== RESET ========== */
+function resetOrder() {
+  clearInterval(countdownInterval);
+  isCheckedOut = false;
+  currentOrder = null;
+
+  // Reset buttons
+  document.getElementById("incBtn").disabled = false;
+  document.getElementById("decBtn").disabled = false;
+  document.getElementById("checkoutBtn").disabled = false;
+  document.getElementById("payBtn").disabled = true;
+  document.getElementById("cancelBtn").disabled = true;
+  fetchInventory();
+
+  // Reset qty
+  document.getElementById("qty").value = 1;
+
+  // Reset order section (hidden)
+  document.getElementById("orderSection")?.classList.add("hidden");
+
+  fetchInventory();
+}
+
+/* ========== UTIL ========== */
+function showMessage(msg) {
+  document.getElementById("message").innerText = msg;
+}

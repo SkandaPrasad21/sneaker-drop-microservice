@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>🔥 Sneaker Drop</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="container">
+  <!-- Back button behaves like cancel -->
+  <button onclick="cancel()">⬅ Back</button>
+
+  <h1>🔥 Sneaker Drop</h1>
+
+  <!-- STOCK DISPLAY -->
+  <div class="stock-row">
+    <div>
+      <p>Available Stock</p>
+      <div class="stock-box" id="availableStock">0</div>
+    </div>
+    <div>
+      <p>Reserved Stock</p>
+      <div class="stock-box" id="reservedStock">0</div>
+    </div>
+  </div>
+
+  <!-- QUANTITY SELECTION -->
+  <h3>Select Quantity</h3>
+  <div class="qty-box">
+    <button id="decBtn" onclick="decreaseQty()">−</button>
+    <input id="qty" type="number" value="1" min="1" readonly />
+    <button id="incBtn" onclick="increaseQty()">+</button>
+  </div>
+
+  <!-- ACTION BUTTONS -->
+  <div class="actions">
+    <button id="checkoutBtn" onclick="checkout()">Checkout</button>
+    <button id="payBtn" onclick="pay()" disabled>Pay</button>
+    <button id="cancelBtn" onclick="cancel()" disabled>Cancel</button>
+  </div>
+
+  <!-- TIMER (optional, shown if you want countdown) -->
+  <div id="orderSection" class="hidden">
+    <p><strong>Time left:</strong>
+      <span id="timeLeft" class="timer">05:00</span>
+    </p>
+  </div>
+
+  <!-- MESSAGE AREA -->
+  <div id="message" class="message"></div>
+</div>
+
+<script src="product.js"></script>
+</body>
+</html>

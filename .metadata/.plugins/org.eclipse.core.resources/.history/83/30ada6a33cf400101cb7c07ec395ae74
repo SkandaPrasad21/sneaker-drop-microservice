@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>🛍 Sneaker Store</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="container">
+  <h1>🛍 Sneaker Store</h1>
+  <p>Select a product</p>
+
+  <div id="productList" class="product-list">
+    <!-- Product buttons will be inserted here dynamically -->
+  </div>
+</div>
+
+<script src="home.js"></script>
+</body>
+</html>
