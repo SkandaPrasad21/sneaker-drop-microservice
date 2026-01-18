@@ -14,6 +14,6 @@ This is a Spring Boot–based microservice responsible for managing sneaker stoc
 - Spring Boot
 - Spring Web
 - Spring Data JPA
-- MySQL
+- PostgreSQL
 - Hibernate
 - REST APIs
